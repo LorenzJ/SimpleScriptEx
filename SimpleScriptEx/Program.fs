@@ -13,12 +13,8 @@ fn main()
     let myLoop = fn(i; func)
     {
         let accumulator = fn(i; func; value)
-        {
-            if i > 0
-            {
-                accumulator(i - 1; func; value + func());
-            } else value;
-        };
+            if i > 0 accumulator(i - 1; func; value + func())
+            else value;
         accumulator(i; func; 0.0);
     };
     myLoop(5; fn() { 2; });
