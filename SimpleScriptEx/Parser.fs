@@ -25,6 +25,7 @@ opp.AddOperator(InfixOperator(">", ws, 10, Associativity.Left, fun lhs rhs -> Bi
 opp.AddOperator(InfixOperator(">=", ws, 10, Associativity.Left, fun lhs rhs -> BinOp(GreaterOrEqual, lhs, rhs)))
 opp.AddOperator(InfixOperator("and", ws, 5, Associativity.Left, fun lhs rhs -> BinOp(And, lhs, rhs)))
 opp.AddOperator(InfixOperator("or", ws, 6, Associativity.Left, fun lhs rhs -> BinOp(Or, lhs, rhs)))
+opp.AddOperator(InfixOperator("@", ws, 100, Associativity.Left, fun lhs rhs -> BinOp(At, lhs, rhs)))
 
 let expr = opp.ExpressionParser
 let exprList = sepEndBy expr (str ";") |> between (str "{") (str "}") |>> ExprList
@@ -35,6 +36,9 @@ do branchRef :=
           (opt(str "else" >>. choice[branch; expr]))
           (fun cond tr fl -> Branch(cond, tr, fl))
 let variable = identifier .>> ws |>> Variable
+
+let pobject = attempt(sepEndBy (identifier .>>. (str "=" >>. expr)) (str ";") |> between (str "{") (str "}")) |>> ObjectInit
+let valueRef = ((str "ref" >>. identifier) |> between (str "(") (str ")")) |>> Reference |>> Constant
 let paramList = (sepEndBy identifier (str ";")) |> between (str "(") (str ")")
 let funcDecl = 
     attempt(
@@ -46,6 +50,8 @@ let funcProto =
     attempt(pipe2 (str "fn" >>. paramList)
           (expr)
           (fun p e -> Function(p, e) |> Constant))
+
+let array = attempt(sepEndBy expr (str ";") |> between (str "[") (str "]")) |>> ArrayInit
 let funcCall = attempt(identifier .>>. ((sepEndBy expr (str ";")) |> between (str "(") (str ")"))) |>> FuncCall
 let numberConstant = pfloat .>> ws |>> Number
 let stringConstant = manySatisfy(fun c -> c <> '"') |> between (pstring "\"") (str "\"") |>> string |>> String
@@ -62,6 +68,8 @@ let constant =
 let declaration = ((str "let " >>. identifier) .>>. (str "=" >>. expr)) |>> Declaration
 opp.TermParser <-
     choice[branch
+           valueRef
+           array
            funcDecl
            funcProto
            declaration

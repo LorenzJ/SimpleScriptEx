@@ -8,18 +8,39 @@ open Parser
 open FParsec
 
 let source = """
+fn pow(x; p)
+{
+    let recPow = fn(a; x; i)
+        if i == 0 a
+        else recPow(a * x; x; i - 1);
+    recPow(1; x; p);
+};
+
+fn fact(x) if x == 0 1
+           else x * fact(x - 1);
+
 fn main()
 {
-    let myLoop = fn(i; func)
     {
-        let accumulator = fn(i; func; value)
-            if i > 0 accumulator(i - 1; func; value + func())
-            else value;
-        accumulator(i; func; 0.0);
+        let loop = fn(cur; end)
+        {
+            Print("Factorial("; cur; ") = "; fact(cur); newLine);
+            if cur < end loop(cur + 1; end);
+        };
+        loop(0; 5);
     };
-    myLoop(5; fn() { 2; });
+    Print("power(5, 2) = "; pow(5; 3); newLine);
+    { 
+        let a = [125.0; (ref pow)];
+        Print(Invoke(a@1; 5; 2));
+    };
+    
 };
-main()
+
+fn durp() "Lol";
+
+main();
+Print(durp());
 """
 [<EntryPoint>]
 let main argv = 

@@ -12,6 +12,8 @@ type Operation = Addition
                | And
                | Or
                | Not
+               | Dot
+               | At
 
 type Value = Number   of float
            | String   of string
@@ -20,6 +22,7 @@ type Value = Number   of float
            | Array    of Value list
            | Object   of (string * Value) list
            | Function of string list * Expression
+           | Reference of string
            | Unit
 
 and Expression = Constant    of Value
@@ -30,5 +33,8 @@ and Expression = Constant    of Value
                | FuncDecl    of string * string list * Expression
                | FuncCall    of string * Expression list
                | ExprList    of Expression list
+               | ObjectInit  of (string * Expression) list
+               | ArrayInit   of Expression list
+               | ArrayAccess of Expression * Expression
 
 type ValueMap = Map<string, Value>
